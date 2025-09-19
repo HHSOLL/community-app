@@ -1,0 +1,9 @@
+{
+  "name": "@community-app/tsconfig",
+  "version": "0.1.0",
+  "private": false,
+  "files": [
+    "base.json"
+  ],
+  "license": "MIT"
+}

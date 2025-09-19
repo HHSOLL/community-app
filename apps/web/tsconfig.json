@@ -1,0 +1,14 @@
+{
+  "extends": "@community-app/tsconfig/base.json",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/features/*": ["features/*"],
+      "@/i18n/*": ["i18n/*"],
+      "@/lib/*": ["lib/*"]
+    },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["next-env.d.ts", "src/**/*", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
