@@ -13,6 +13,12 @@ import {
   resetMagicLinkRepositoryForTests,
   type MagicLinkRepository
 } from '@/server/auth/magicLinkRepository';
+import {
+  createInMemoryUserRepository,
+  getUserRepository,
+  resetUserRepositoryForTests,
+  type UserRepository
+} from '@/server/auth/userRepository';
 
 const TOKEN_TTL_SECONDS = 10 * 60;
 
@@ -36,7 +42,8 @@ type MagicLinkVerificationResult = {
 export class MagicLinkService {
   constructor(
     private readonly repository: MagicLinkRepository,
-    private readonly mailer: MagicLinkMailer
+    private readonly mailer: MagicLinkMailer,
+    private readonly userRepository: UserRepository
   ) {}
 
   async requestMagicLink(email: string): Promise<MagicLinkRequestResult> {
@@ -72,6 +79,7 @@ export class MagicLinkService {
       throw new MagicLinkError('토큰이 만료되었습니다.', 410);
     }
 
+    await this.userRepository.ensureVerifiedUser(record.email);
     return { email: record.email };
   }
 
@@ -84,7 +92,11 @@ let cachedService: MagicLinkService | null = null;
 
 export function getMagicLinkService(): MagicLinkService {
   if (!cachedService) {
-    cachedService = new MagicLinkService(getMagicLinkRepository(), getMagicLinkMailer());
+    cachedService = new MagicLinkService(
+      getMagicLinkRepository(),
+      getMagicLinkMailer(),
+      getUserRepository()
+    );
   }
 
   return cachedService;
@@ -93,14 +105,21 @@ export function getMagicLinkService(): MagicLinkService {
 export function createInMemoryMagicLinkService() {
   const repository = createInMemoryMagicLinkRepository();
   const mailer = createConsoleMagicLinkMailer();
+  const userRepository = createInMemoryUserRepository();
   return {
-    service: new MagicLinkService(repository, mailer),
+    service: new MagicLinkService(repository, mailer, userRepository),
     repository,
-    mailer
+    mailer,
+    userRepository
   };
 }
 
 export function resetMagicLinkServiceForTests() {
   resetMagicLinkRepositoryForTests();
-  cachedService = new MagicLinkService(getMagicLinkRepository(), getMagicLinkMailer());
+  resetUserRepositoryForTests();
+  cachedService = new MagicLinkService(
+    getMagicLinkRepository(),
+    getMagicLinkMailer(),
+    getUserRepository()
+  );
 }

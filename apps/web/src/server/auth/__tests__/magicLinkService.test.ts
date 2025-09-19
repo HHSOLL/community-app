@@ -1,5 +1,6 @@
 import { MagicLinkService, MagicLinkError } from '../magicLinkService';
 import { createInMemoryMagicLinkRepository } from '../magicLinkRepository';
+import { createInMemoryUserRepository } from '../userRepository';
 import type { MagicLinkMailer } from '../magicLinkMailer';
 
 jest.mock('@/lib/env', () => ({
@@ -16,10 +17,12 @@ describe('magicLinkService', () => {
     const mailer: MagicLinkMailer = {
       sendMagicLinkEmail: jest.fn(() => Promise.resolve())
     };
+    const userRepository = createInMemoryUserRepository();
     return {
-      service: new MagicLinkService(repository, mailer),
+      service: new MagicLinkService(repository, mailer, userRepository),
       repository,
-      mailer
+      mailer,
+      userRepository
     };
   };
 

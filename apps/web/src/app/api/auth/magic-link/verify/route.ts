@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getMagicLinkService, MagicLinkError } from '@/server/auth/magicLinkService';
+import { checkRateLimit, RateLimitError } from '@/server/rateLimiter';
 
 const payloadSchema = z.object({
   token: z.string().min(8)
@@ -10,11 +11,18 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
     const { token } = payloadSchema.parse(json);
+
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown-ip';
+    checkRateLimit(`magic-link-verify:${ip}`, 10, 5 * 60 * 1000);
+
     const service = getMagicLinkService();
     const { email } = await service.verifyMagicLink(token);
 
     return NextResponse.json({ message: '인증이 완료되었습니다.', email }, { status: 200 });
   } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json({ message: error.message }, { status: error.status });
+    }
     if (error instanceof MagicLinkError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
