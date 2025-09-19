@@ -1,3 +1,5 @@
+'use client';
+
 import { Card } from '@community-app/ui';
 import { useTranslation } from 'react-i18next';
 
