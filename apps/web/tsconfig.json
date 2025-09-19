@@ -3,13 +3,34 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@/features/*": ["features/*"],
-      "@/i18n/*": ["i18n/*"],
-      "@/lib/*": ["lib/*"],
-      "@/server/*": ["server/*"]
+      "@/features/*": [
+        "features/*"
+      ],
+      "@/i18n/*": [
+        "i18n/*"
+      ],
+      "@/lib/*": [
+        "lib/*"
+      ],
+      "@/server/*": [
+        "server/*"
+      ]
     },
-    "plugins": [{ "name": "next" }]
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "esModuleInterop": true
   },
-  "include": ["next-env.d.ts", "src/**/*", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "src/**/*",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
