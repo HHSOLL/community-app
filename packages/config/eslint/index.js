@@ -13,24 +13,13 @@ module.exports = {
     es2022: true,
     node: true
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-    'next',
-    'next/core-web-vitals',
-    'prettier'
-  ],
+  extends: ['next', 'next/core-web-vitals', 'prettier'],
   settings: {
     react: {
       version: 'detect'
     }
   },
   rules: {
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off'
   }
