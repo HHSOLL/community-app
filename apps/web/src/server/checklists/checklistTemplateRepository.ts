@@ -20,6 +20,7 @@ type ChecklistTemplate = {
 
 export interface ChecklistTemplateRepository {
   getTemplate(key: TemplateKey): Promise<ChecklistTemplate | null>;
+  upsertTemplate(key: TemplateKey, items: TemplateItem[]): Promise<void>;
 }
 
 const fallbackTemplates: Record<string, TemplateItem[]> = {
@@ -46,10 +47,19 @@ const fallbackTemplates: Record<string, TemplateItem[]> = {
 };
 
 class InMemoryChecklistTemplateRepository implements ChecklistTemplateRepository {
+  private overrides = new Map<string, TemplateItem[]>();
+
   async getTemplate(key: TemplateKey) {
-    const template = fallbackTemplates[`${key.term}:${key.stayLength}:${key.locale}`];
+    const cacheKey = `${key.term}:${key.stayLength}:${key.locale}`;
+    const overridden = this.overrides.get(cacheKey);
+    const template = overridden ?? fallbackTemplates[cacheKey];
     if (!template) return null;
     return { items: template } satisfies ChecklistTemplate;
+  }
+
+  async upsertTemplate(key: TemplateKey, items: TemplateItem[]) {
+    const cacheKey = `${key.term}:${key.stayLength}:${key.locale}`;
+    this.overrides.set(cacheKey, items);
   }
 }
 
@@ -76,6 +86,23 @@ class SupabaseChecklistTemplateRepository implements ChecklistTemplateRepository
     }
 
     return { items: data.items } satisfies ChecklistTemplate;
+  }
+
+  async upsertTemplate(key: TemplateKey, items: TemplateItem[]) {
+    const { error } = await this.client
+      .from('checklist_templates')
+      .upsert({
+        term: key.term,
+        stay_length: key.stayLength,
+        locale: key.locale,
+        items
+      }, {
+        onConflict: 'term,stay_length,locale'
+      });
+
+    if (error) {
+      throw error;
+    }
   }
 }
 
