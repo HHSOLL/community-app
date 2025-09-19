@@ -70,6 +70,10 @@ export class ChecklistService {
     const items = await this.userChecklistRepository.listChecklist(email);
     return { items };
   }
+
+  async updateItemStatus(email: string, itemId: string, status: StoredChecklistItem['status']) {
+    return this.userChecklistRepository.updateStatus(email, itemId, status);
+  }
 }
 
 let cachedService: ChecklistService | null = null;

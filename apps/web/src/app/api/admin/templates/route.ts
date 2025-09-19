@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getChecklistTemplateRepository } from '@/server/checklists/checklistTemplateRepository';
 import { requireSessionEmail } from '@/server/auth/session';
-import { getUserRepository } from '@/server/auth/userRepository';
+import { getAdminEmails } from '@/lib/env';
+import { listTemplates, upsertTemplate } from '@/server/checklists/templatesService';
 
 const upsertSchema = z.object({
   term: z.string().min(1),
@@ -18,11 +18,10 @@ const upsertSchema = z.object({
   )
 });
 
-async function ensureAdmin(email: string) {
-  const repo = getUserRepository();
-  const profile = await repo.getOnboardingProfile(email);
-  if (!profile) {
-    throw new Error('권한이 없습니다.');
+function ensureAdmin(email: string) {
+  const admins = getAdminEmails();
+  if (!admins.includes(email.trim().toLowerCase())) {
+    throw new Error('관리자 권한이 필요합니다.');
   }
 }
 
@@ -41,8 +40,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: 'term 또는 stayLength가 필요합니다.' }, { status: 400 });
   }
 
-  const repo = getChecklistTemplateRepository();
-  const template = await repo.getTemplate({ term, stayLength, locale });
+  try {
+    ensureAdmin(email);
+  } catch (error) {
+    return NextResponse.json({ message: '관리자 권한이 필요합니다.' }, { status: 403 });
+  }
+
+  const template = await listTemplates({ term, stayLength, locale });
   return NextResponse.json({ template }, { status: 200 });
 }
 
@@ -53,13 +57,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    await ensureAdmin(email);
+    ensureAdmin(email);
   } catch (error) {
     return NextResponse.json({ message: '관리자 권한이 필요합니다.' }, { status: 403 });
   }
 
   const body = await request.json();
   const payload = upsertSchema.parse(body);
-  // TODO: Supabase insert/update via dedicated repository method.
-  return NextResponse.json({ message: '템플릿 저장은 아직 구현되지 않았습니다.', payload }, { status: 202 });
+  await upsertTemplate(payload);
+  return NextResponse.json({ message: '템플릿이 저장되었습니다.' }, { status: 200 });
 }

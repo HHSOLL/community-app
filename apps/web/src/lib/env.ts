@@ -12,7 +12,8 @@ const envSchema = z.object({
   POSTHOG_API_KEY: z.string().optional(),
   POSTHOG_HOST: z.string().optional(),
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
-  NEXT_PUBLIC_POSTHOG_HOST: z.string().optional()
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
+  ADMIN_EMAILS: z.string().optional()
 });
 
 const parsed = envSchema.safeParse({
@@ -27,7 +28,8 @@ const parsed = envSchema.safeParse({
   POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
   POSTHOG_HOST: process.env.POSTHOG_HOST,
   NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
-  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  ADMIN_EMAILS: process.env.ADMIN_EMAILS
 });
 
 if (!parsed.success) {
@@ -92,4 +94,12 @@ export function getPublicPosthogConfig() {
     apiKey: values.NEXT_PUBLIC_POSTHOG_KEY,
     host: values.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.posthog.com'
   } as const;
+}
+
+export function getAdminEmails() {
+  if (!values.ADMIN_EMAILS) {
+    return [] as string[];
+  }
+
+  return values.ADMIN_EMAILS.split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
 }

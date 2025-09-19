@@ -13,26 +13,37 @@ export type StoredChecklistItem = {
 export interface UserChecklistRepository {
   replaceChecklist(email: string, items: StoredChecklistItem[]): Promise<void>;
   listChecklist(email: string): Promise<StoredChecklistItem[]>;
+  updateStatus(email: string, itemId: string, status: StoredChecklistItem['status']): Promise<boolean>;
 }
-
-type ItemInput = Omit<StoredChecklistItem, 'id' | 'status'> & { status?: StoredChecklistItem['status'] };
 
 class InMemoryUserChecklistRepository implements UserChecklistRepository {
   private store = new Map<string, StoredChecklistItem[]>();
 
   async replaceChecklist(email: string, items: StoredChecklistItem[]) {
-    this.store.set(email, items.map((item, index) => ({
-      id: item.id || `item-${index}`,
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      status: item.status ?? 'pending',
-      position: item.position
-    })));
+    this.store.set(
+      email,
+      items.map((item, index) => ({
+        id: item.id || `item-${index}`,
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        status: item.status ?? 'pending',
+        position: item.position ?? index
+      }))
+    );
   }
 
   async listChecklist(email: string) {
     return this.store.get(email) ?? [];
+  }
+
+  async updateStatus(email: string, itemId: string, status: StoredChecklistItem['status']) {
+    const items = this.store.get(email);
+    if (!items) return false;
+    const index = items.findIndex((item) => item.id === itemId);
+    if (index === -1) return false;
+    items[index] = { ...items[index], status };
+    return true;
   }
 }
 
@@ -49,7 +60,8 @@ class SupabaseUserChecklistRepository implements UserChecklistRepository {
   constructor(private readonly client: SupabaseClient) {}
 
   async replaceChecklist(email: string, items: StoredChecklistItem[]) {
-    const mapped: ItemInput[] = items.map((item, index) => ({
+    const mapped = items.map((item, index) => ({
+      id: item.id,
       title: item.title,
       description: item.description,
       category: item.category,
@@ -66,6 +78,7 @@ class SupabaseUserChecklistRepository implements UserChecklistRepository {
     const { error } = await this.client.from('user_checklist_items').insert(
       mapped.map((item) => ({
         user_email: email,
+        id: item.id,
         title: item.title,
         description: item.description,
         category: item.category,
@@ -102,6 +115,21 @@ class SupabaseUserChecklistRepository implements UserChecklistRepository {
       status: (row.status as StoredChecklistItem['status']) ?? 'pending',
       position: row.position
     }));
+  }
+
+  async updateStatus(email: string, itemId: string, status: StoredChecklistItem['status']) {
+    const { data, error } = await this.client
+      .from('user_checklist_items')
+      .update({ status })
+      .match({ id: itemId, user_email: email })
+      .select('id')
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return Boolean(data);
   }
 }
 

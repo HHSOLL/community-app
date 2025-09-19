@@ -19,6 +19,11 @@ npm run format     # prettier check
 ```
 Copy `.env.example` to `.env.local` before running the app and configure magic link, database, Meilisearch, and analytics endpoints.
 
+## Admin Controls
+- Set `ADMIN_EMAILS` in the environment to a comma-separated list of emails allowed to manage checklist templates.
+- Checklist templates can be queried/updated via `GET/POST /api/admin/templates` (requires session + admin email); the page `/{locale}/admin/templates` links to the seed SQL for quick bootstrap.
+- Saved templates feed directly into onboarding checklist generation and the `/api/checklists` endpoint used by the client checklist board.
+
 ## Current Documentation
 - `plan.md`: Original project brief, constraints, and deliverables.
 - `AGENTS.md`: Contributor guidelines (structure, tooling, collaboration).

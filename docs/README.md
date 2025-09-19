@@ -17,4 +17,7 @@ Central directory for MVP deliverables spanning PRD, IA, ERD, API specs, search 
 11. `SeedContent.md` – 시드 체크리스트/콘텐츠 패키지.
 12. `RiskMitigation.md` – 리스크 및 대응 전략.
 
+### 운영 관리 메모
+- `infra/sql/seed_checklist_templates.sql`을 실행해 학기/언어별 템플릿을 시드할 수 있으며, 이후 `/api/admin/templates`로 수정 가능합니다 (환경 변수 `ADMIN_EMAILS`에 등록된 계정만 허용).
+
 각 문서에는 검수 체크리스트와 Assumptions/Open Issues가 포함되어 있으며, 지속적으로 업데이트된다.
