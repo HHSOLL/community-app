@@ -10,7 +10,8 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@community-app/ui$': '<rootDir>/../../packages/ui/src'
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts']
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  transformIgnorePatterns: ['node_modules/(?!(jose)/)']
 };
 
 module.exports = createJestConfig(customJestConfig);

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getDefaultLocale } from '@/lib/env';
 import { getOnboardingService } from '@/server/onboarding/onboardingService';
+import { requireSessionEmail } from '@/server/auth/session';
+import { getChecklistService } from '@/server/checklists/checklistService';
 
 const localeEnum = z.enum(['ko', 'en']);
 const resolvedDefaultLocale = (() => {
@@ -10,7 +12,6 @@ const resolvedDefaultLocale = (() => {
 })();
 
 const payloadSchema = z.object({
-  email: z.string().email(),
   term: z.string().min(1),
   stayLength: z.number().int().positive().max(24),
   locale: localeEnum.default(resolvedDefaultLocale),
@@ -24,23 +25,36 @@ const payloadSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const email = await requireSessionEmail(request);
+    if (!email) {
+      return NextResponse.json({ message: '인증 정보가 필요합니다.' }, { status: 401 });
+    }
+
     const body = await request.json();
     const payload = payloadSchema.parse(body);
     const onboardingService = getOnboardingService();
+    const checklistService = getChecklistService();
 
-    await onboardingService.saveProfile(payload.email, {
+    await onboardingService.saveProfile(email, {
       term: payload.term,
       stayLength: payload.stayLength,
       locale: payload.locale,
       preferences: payload.preferences
     });
 
-    const profile = await onboardingService.getProfile(payload.email);
+    const profile = await onboardingService.getProfile(email);
+
+    const checklist = await checklistService.generateInitialChecklist({
+      term: payload.term,
+      stayLength: payload.stayLength,
+      locale: payload.locale
+    });
 
     return NextResponse.json(
       {
         message: '온보딩 정보가 저장되었습니다.',
-        profile
+        profile,
+        checklist
       },
       { status: 200 }
     );

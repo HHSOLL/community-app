@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   EMAIL_DOMAIN_WHITELIST: z.string().default('berkeley.edu'),
-  MAGIC_LINK_SECRET: z.string().optional(),
+  MAGIC_LINK_SECRET: z.string().default('dev-secret-key'),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   NEXT_PUBLIC_DEFAULT_LOCALE: z.string().default('ko'),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
@@ -42,7 +42,7 @@ export function getDefaultLocale() {
 }
 
 export function getMagicLinkSecret() {
-  return values.MAGIC_LINK_SECRET ?? '';
+  return values.MAGIC_LINK_SECRET;
 }
 
 export function getAppBaseUrl() {
