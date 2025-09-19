@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getMagicLinkService, MagicLinkError } from '@/server/auth/magicLinkService';
 import { checkRateLimit, RateLimitError } from '@/server/rateLimiter';
+import { logEvent } from '@/server/analytics/eventLogger';
 
 const payloadSchema = z.object({
   email: z.string().email()
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     checkRateLimit(`magic-link:${email}`, 5, 5 * 60 * 1000);
     const service = getMagicLinkService();
     const result = await service.requestMagicLink(email);
+    logEvent('magic_link_requested', { email, ip });
 
     return NextResponse.json(
       {

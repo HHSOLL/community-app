@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getMagicLinkService, MagicLinkError } from '@/server/auth/magicLinkService';
 import { checkRateLimit, RateLimitError } from '@/server/rateLimiter';
 import { createSessionToken, setSessionCookie } from '@/server/auth/session';
+import { logEvent } from '@/server/analytics/eventLogger';
 
 const payloadSchema = z.object({
   token: z.string().min(8)
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
     const sessionToken = await createSessionToken({ email });
     const response = NextResponse.json({ message: '인증이 완료되었습니다.', email }, { status: 200 });
     setSessionCookie(response, sessionToken);
+    logEvent('magic_link_verified', { email, ip });
     return response;
   } catch (error) {
     if (error instanceof RateLimitError) {

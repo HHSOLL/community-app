@@ -4,6 +4,7 @@ import { getDefaultLocale } from '@/lib/env';
 import { getOnboardingService } from '@/server/onboarding/onboardingService';
 import { requireSessionEmail } from '@/server/auth/session';
 import { getChecklistService } from '@/server/checklists/checklistService';
+import { logEvent } from '@/server/analytics/eventLogger';
 
 const localeEnum = z.enum(['ko', 'en']);
 const resolvedDefaultLocale = (() => {
@@ -44,7 +45,14 @@ export async function POST(request: Request) {
 
     const profile = await onboardingService.getProfile(email);
 
-    const checklist = await checklistService.generateInitialChecklist({
+    const checklist = await checklistService.generateInitialChecklist(email, {
+      term: payload.term,
+      stayLength: payload.stayLength,
+      locale: payload.locale
+    });
+
+    logEvent('onboarding_profile_saved', {
+      email,
       term: payload.term,
       stayLength: payload.stayLength,
       locale: payload.locale
