@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { verifyMagicLink, MagicLinkError } from '@/server/auth/magicLinkService';
+import { getMagicLinkService, MagicLinkError } from '@/server/auth/magicLinkService';
 
 const payloadSchema = z.object({
   token: z.string().min(8)
@@ -10,7 +10,8 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
     const { token } = payloadSchema.parse(json);
-    const { email } = verifyMagicLink(token);
+    const service = getMagicLinkService();
+    const { email } = await service.verifyMagicLink(token);
 
     return NextResponse.json({ message: '인증이 완료되었습니다.', email }, { status: 200 });
   } catch (error) {

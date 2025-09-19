@@ -5,7 +5,8 @@
     "paths": {
       "@/features/*": ["features/*"],
       "@/i18n/*": ["i18n/*"],
-      "@/lib/*": ["lib/*"]
+      "@/lib/*": ["lib/*"],
+      "@/server/*": ["server/*"]
     },
     "plugins": [{ "name": "next" }]
   },

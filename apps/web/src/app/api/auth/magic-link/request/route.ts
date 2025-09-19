@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requestMagicLink, MagicLinkError } from '@/server/auth/magicLinkService';
+import { getMagicLinkService, MagicLinkError } from '@/server/auth/magicLinkService';
 
 const payloadSchema = z.object({
   email: z.string().email()
@@ -10,7 +10,8 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
     const { email } = payloadSchema.parse(json);
-    const result = requestMagicLink(email);
+    const service = getMagicLinkService();
+    const result = await service.requestMagicLink(email);
 
     return NextResponse.json(
       {
