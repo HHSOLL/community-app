@@ -23,5 +23,6 @@ Copy `.env.example` to `.env.local` before running the app and configure magic l
 - `plan.md`: Original project brief, constraints, and deliverables.
 - `AGENTS.md`: Contributor guidelines (structure, tooling, collaboration).
 - `init_plan.md`: Phase roadmap and development tracks derived from the initial brief.
+- `docs/`: Phase 0 deliverables (`PRD`, `IA`, `DataModel`, `API`, `SearchEmbedding`, `Frontend`, `Moderation`, `Analytics`, `Infra`, `ProjectPlan`, `SeedContent`, `RiskMitigation`).
 
 Expect rapid iteration—each phase will layer in production-ready features, ops playbooks, and instrumentation ahead of the Berkeley pilot launch.
