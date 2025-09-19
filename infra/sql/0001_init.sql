@@ -92,5 +92,25 @@ VALUES
       {"title":"은행 계좌 개설","description":"필요 서류 준비 및 지점 예약","category":"은행","position":1},
       {"title":"Cal 1 Card 발급","description":"사진 업로드 및 수령 일정 확인","category":"학생증","position":2}
     ]'::jsonb
+  ),
+  (
+    '2025-spring',
+    6,
+    'en',
+    '[
+      {"title":"Set up mobile service","description":"Select a recommended carrier and plan","category":"Connectivity","position":0},
+      {"title":"Open bank account","description":"Prepare documents and schedule appointment","category":"Banking","position":1},
+      {"title":"Pick up Cal 1 Card","description":"Upload photo and confirm pickup slot","category":"Campus","position":2}
+    ]'::jsonb
+  ),
+  (
+    '2025-fall',
+    4,
+    'ko',
+    '[
+      {"title":"숙소 확정","description":"입주 전 체크리스트와 보험 확인","category":"주거","position":0},
+      {"title":"수강 정정 준비","description":"Phase 일정 및 Waitlist 전략 정리","category":"학사","position":1},
+      {"title":"보험 가입/면제","description":"SHIP 가입 여부 확인 및 증빙","category":"보험","position":2}
+    ]'::jsonb
   )
 ON CONFLICT DO NOTHING;

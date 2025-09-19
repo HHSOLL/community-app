@@ -15,3 +15,6 @@ Planned structure:
    ```
 3. Store `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and GitHub/Vercel secrets.
 4. Configure Row Level Security rules as features harden; the MVP relies on service role calls only.
+
+### Template Seeding
+- Run `psql "$SUPABASE_DB_URL" -f infra/sql/seed_checklist_templates.sql` to populate KR/EN checklist templates for Spring/Fall 2025 cohorts.

@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const sessionToken = await createSessionToken({ email });
     const response = NextResponse.json({ message: '인증이 완료되었습니다.', email }, { status: 200 });
     setSessionCookie(response, sessionToken);
-    logEvent('magic_link_verified', { email, ip });
+    await logEvent('magic_link_verified', { email, ip });
     return response;
   } catch (error) {
     if (error instanceof RateLimitError) {

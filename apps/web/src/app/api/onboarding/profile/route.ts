@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       locale: payload.locale
     });
 
-    logEvent('onboarding_profile_saved', {
+    await logEvent('onboarding_profile_saved', {
       email,
       term: payload.term,
       stayLength: payload.stayLength,

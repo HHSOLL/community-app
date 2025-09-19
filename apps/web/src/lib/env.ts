@@ -8,7 +8,11 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
-  RESEND_API_KEY: z.string().optional()
+  RESEND_API_KEY: z.string().optional(),
+  POSTHOG_API_KEY: z.string().optional(),
+  POSTHOG_HOST: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().optional()
 });
 
 const parsed = envSchema.safeParse({
@@ -19,7 +23,11 @@ const parsed = envSchema.safeParse({
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  RESEND_API_KEY: process.env.RESEND_API_KEY
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
+  POSTHOG_HOST: process.env.POSTHOG_HOST,
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST
 });
 
 if (!parsed.success) {
@@ -62,4 +70,26 @@ export function getSupabaseConfig() {
 
 export function getResendApiKey() {
   return values.RESEND_API_KEY ?? '';
+}
+
+export function getPosthogConfig() {
+  if (!values.POSTHOG_API_KEY) {
+    return null;
+  }
+
+  return {
+    apiKey: values.POSTHOG_API_KEY,
+    host: values.POSTHOG_HOST || 'https://us.posthog.com'
+  } as const;
+}
+
+export function getPublicPosthogConfig() {
+  if (!values.NEXT_PUBLIC_POSTHOG_KEY) {
+    return null;
+  }
+
+  return {
+    apiKey: values.NEXT_PUBLIC_POSTHOG_KEY,
+    host: values.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.posthog.com'
+  } as const;
 }
